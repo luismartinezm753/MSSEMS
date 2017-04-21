@@ -1,16 +1,17 @@
 import itertools
+import pickle
 from math import exp
-import matplotlib.pyplot as plt
 from numpy import linalg as LA
 from scipy.sparse import csgraph
 from sklearn import preprocessing
 from sklearn.neighbors import NearestNeighbors
+from pathlib import Path
 
 from Bag import *
 
 bandwith = 0.1
-k = 5
-m = 5
+k = 20
+m = 20
 alfa_1 = 0.1
 alfa_2 = 0.1
 zeta = 0.1
@@ -23,6 +24,7 @@ def calculate_W(distances, n_images, indices):
     W = np.array([np.zeros(n_images) for i in range(n_images)])
     for i in range(n_images):
         for j in range(k):
+            dist = exp(-(pow(distances[i][j], 2) / pow(bandwith, 2)))
             W[i][indices[i][j]] = exp(-(pow(distances[i][j], 2) / pow(bandwith, 2)))
     return W
 
@@ -92,15 +94,24 @@ def round(a):
 
 bov = BOV(no_clusters=10)
 bov.train_path = "/home/luism/Universidad/images/"
-filter_path="/home/luism/Universidad/images_filter"
-histogram_images = bov.trainModel()
-histogram_images_normalized = preprocessing.normalize(histogram_images, norm='l2')
+filter_path="/home/luism/Universidad/images_filter/"
+histogram_images_normalized_loc = Path('histogram_images_normalized.p')
+
+if histogram_images_normalized_loc.exists():
+    with histogram_images_normalized_loc.open('rb') as f:
+        histogram_images_normalized = pickle.loads(f.read())
+        bov.file_helper.n_images = histogram_images_normalized.shape[0]
+else:
+    histogram_images = bov.trainModel()
+    histogram_images_normalized = preprocessing.normalize(histogram_images, norm='l2')
+    pickle.dump(histogram_images_normalized, open("histogram_images_normalized.p", "wb"))
+
 
 print("Calculando distancias")
-plt.imshow(bov.images['pistorius'][0])
 nbrs = NearestNeighbors(n_neighbors=k).fit(histogram_images_normalized)
 distances, indices = nbrs.kneighbors(histogram_images_normalized)
 weight_matrix = calculate_W(distances=distances, indices=indices, n_images=bov.file_helper.n_images)
+pickle.dump(weight_matrix,open( "weight_matrix.p", "wb" ))
 laplacian_graph = csgraph.laplacian(weight_matrix, normed=True)
 
 print("Calculando Eigenvalues")
