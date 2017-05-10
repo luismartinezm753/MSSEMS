@@ -1,9 +1,10 @@
 import numpy as np
 
 K = 10  # number of subtopics ver referencia 11
-n_tweets = 10
-size_vocab_textual = 100000
-size_vocab_visual = 1000
+n_tweets = 10 #number of tweets in the event
+size_vocab_textual = 100000 #number of textual words
+size_vocab_visual = 1000 #number of visual words
+#TODO load textual and visual words
 
 lambda_tg = np.full(size_vocab_textual,0.1)
 lambda_ts = np.full(size_vocab_textual,0.01)
