@@ -1,0 +1,2 @@
+def getTweets(eventName):
+    return {}

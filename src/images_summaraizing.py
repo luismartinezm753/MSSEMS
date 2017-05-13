@@ -3,7 +3,7 @@ from sklearn import cluster
 import numpy as np
 from numpy import linalg as LA
 
-
+#Retorna las columnas de la matriz correspondientes a las imagenes del subevento
 def get_images_subevent(weight_matrix, subevent):
     images = np.array([np.zeros(len(subevent)) for i in range(len(subevent))])
     for i in range(len(subevent)):
@@ -28,6 +28,7 @@ def mainfold_ranking(cluster_elements):
     first_term = gamma * np.dot(diag, np.dot(cluster_elements, diag))
     ranking_vector_new = h
     convergence = (1 - gamma) * np.dot(LA.inv(np.identity(cluster_elements.shape[0]) - first_term), h)
+
     while (ranking_vector_new < convergence).all():
         ranking_vector_old = ranking_vector_new
         ranking_vector_new = np.dot(first_term, ranking_vector_old) + second_term
